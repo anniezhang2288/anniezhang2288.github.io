@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Portfolio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        figure {
+            display: inline-block; 
+            margin-bottom: 20px;
+            text-align: left; 
+        }
+        img {
+            width: 25%; 
+            height: auto; 
+            max-width: 100%; 
+        }
+        figcaption {
+            font-style: italic;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to My CS180 Project 1 Portfolio!</h1>
+    <p>
+        Hello! For this project, I colorized the Prokudin-Gorskii photo collection. I did so by extracting the RGB channels
+        from the images and cropping them to remove the outer 15% to remove black borders. In addition, I used a Sobel Filter for edge detection on
+        each channel to help find the shifts that align the image. Lastly, I cropped the aligned images to be the same size before
+        merging all three color channels for the final image. One of the problems I faced while implementing this algorithm was
+        how the Emir image looked unaligned after I tried to align the images without Sobel Filters. To fix this, I added Sobel Filters to my algorithm
+        to obtain more accurate offsets for that image. 
+
+        The results of my algorithm on the example images and the image I chose from the Prokudin-Gorskii photo collection are shown below:
+
+    </p>
+
+    <h2>Aligned Images</h2>
+    
+    <h3>Cathedral Aligned Image</h3>
+    <figure>
+        <img src="media/cathedral_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (2, 5)
+            red offset: (3, 12)</figcaption>
+    </figure>
+
+    <h3>Church Aligned Image</h3>
+    <figure>
+        <img src="media/church_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (4, 25)
+            red offset: (-4, 58)</figcaption>
+    </figure>
+
+    
+    <h3>Emir Aligned Image (Without Sobel Filter)</h3>
+    <figure>
+        <img src="media/emir_aligned_recursive_ncc.jpg" alt="Emir Aligned Image">
+        <figcaption>green offset: (24, 49)
+            red offset: (-385, 154)
+        </figcaption>
+    </figure>
+
+    <h3>Emir Aligned Image (with Sobel Filter) </h3>
+    <figure>
+        <img src="media/emir_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (23, 49)
+            red offset: (40, 107)</figcaption>
+    </figure>
+
+    <h3>Harvesters </h3>
+    <figure>
+        <img src="media/harvesters_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (17, 60)
+            red offset: (13, 123)</figcaption>
+    </figure>
+
+    <h3>Icon</h3>
+    <figure>
+        <img src="media/icon_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (17, 42)
+            red offset: (23, 90)</figcaption>
+    </figure>
+
+    <h3>Lady</h3>
+    <figure>
+        <img src="media/lady_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (9, 56)
+            red offset: (13, 120)</figcaption>
+    </figure>
+
+    <h3>Melons</h3>
+    <figure>
+        <img src="media/melons_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (10, 80)
+            red offset: (13, 177)</figcaption>
+    </figure>
+
+    <h3>Monastery</h3>
+    <figure>
+        <img src="media/monastery_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (2, -3)
+            red offset: (2, 3)</figcaption>
+    </figure>
+
+    <h3>Onion Church</h3>
+    <figure>
+        <img src="media/onion_church_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (25, 52)
+            red offset: (35, 107)</figcaption>
+    </figure>
+
+    <h3>Sculpture</h3>
+    <figure>
+        <img src="media/sculpture_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (-11, 33)
+            red offset: (-26, 140)</figcaption>
+    </figure>
+
+    <h3>Self Portrait</h3>
+    <figure>
+        <img src="media/self_portrait_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (29, 78)
+            red offset: (37, 176)</figcaption>
+    </figure>
+
+    <h3>Three Generations</h3>
+    <figure>
+        <img src="media/three_generations_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (12, 54)
+            red offset: (9, 111)</figcaption>
+    </figure>
+
+    <h3>Tobolsk</h3>
+    <figure>
+        <img src="media/tobolsk_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption>green offset: (2, 3)
+            red offset: (3, 6)
+            </figcaption>
+    </figure>
+
+    <h3>Train</h3>
+    <figure>
+        <img src="media/train_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption> green offset: (5, 42) red offset: (32, 87) </figcaption>
+    </figure>
+
+    <h3>Chosen image before: </h3>
+    <figure>
+        <img src="media/master-pnp-prok-00100-00159u.jpg" alt="Church Aligned Image">
+        <figcaption> </figcaption>
+    </figure>
+
+    <h3>Chosen image after: </h3>
+    <figure>
+        <img src="media/master-pnp-prok-00100-00159u_aligned_sobel_ncc.jpg" alt="Church Aligned Image">
+        <figcaption> green offset: (-2, 43)
+            red offset: (9, 97)</figcaption>
+    </figure>
+
+
+
+
+
+</body>
+</html>
