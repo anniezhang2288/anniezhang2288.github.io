@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CS180 Project 2: Fun with Filters and Frequencies</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 100%; /* Ensures the image doesn't exceed the container width */
+            height: auto; /* Keeps the aspect ratio */
+        }
+        .image-container {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>CS180 Project 2: Fun with Filters and Frequencies</h1>
+
+    <h2>Part 1: Fun with Filters</h2>
+
+    <h3>1.1: Finite Difference Operator</h3>
+    <p>By convolving the image with the D_x and D_y kernels, we can calculate how pixel values change in the horizontal and vertical directions. Applying the D_x kernel detects changes along the x-axis, highlighting vertical edges, while applying the D_y kernel captures changes along the y-axis, emphasizing horizontal edges. Using these results, we calculate the gradient magnitude, which represents the overall strength of edges at each point. This is done by combining the horizontal and vertical derivatives: gradient magnitude = np.sqrt(im_dX ** 2 + im_dY ** 2). To generate a clean, sharp edge map, we apply a threshold, converting gradient magnitudes above a certain value (e.g., 0.3) to white (1) and those below to black (0), resulting in a binary image that clearly outlines the edges.
+    </p>
+    <p><strong>Image:</strong></p>
+    <ul>
+        <li><img src="media/11cameraman.png" alt="Cameraman dx"></li>
+    </ul>
+<!-- Here, This way, we can remove some of the noise. With the rule of thumb being to set the half-width of the kernel to be approximately 3*sigma for our gaussian 2D filter, I went with sigma=2, k=12. To create the 2D Gaussian, we can simply take the outer product of a 1D Gaussian and its transpose. Compared to the result of 1.1, we see that blurring the image first reduces noise in the final edge image, but also leads to a bit blurrier edges.
+
+-->
+    <h3>1.2: Derivative of Gaussian (DoG) Filter</h3>
+    <p>For Part 1.2, we perform the same process as 1.1 to obtain the edge image but we first blur the image with a 2D Gaussian convolution. By blurring the image first, we can get rid of some of the noise in the original image so sthat our edge image is smoother. For the kernel size, I chose a kernel size of  12 because a larger kernel size means more neighboring pixels contribute to the smoothing, which results in more blur and thus more significant smoothing. This helps to reduce the noise in the image and makes the edges more prominent after applying the derivative. </p>
+    
+    <p>Since the sigma values impact the spread of the gaussian, I chose 2 because it is a moderate value that blurs the image effectively without overly distorting it. Smaller sigma would result in less blur, while a larger sigma produces a stronger smoothing effect. To make the 2D Gaussian, I took the outer product of the 1D Gaussian with its transpose. For the convolutions, used the convolve2d function from the scipy signal library. The arguments I used for the function were boundary = 'symm' since reflecting boundary pixels produced the best image results and the mode, 'same' helped preserve the size of the output image to be the identical to the original. </p>
+    <p><strong>Images:</strong></p>
+    <ul>
+        <li><img src="media/12cameraman.png" alt="Gaussian Blurred"></li>
+    </ul>
+
+    <p>
+        Answer to 1.2: Comparing the images in 1.2 to 1.1, we notice that blurring the image beforehand reduces noise in the final edge image. However, this also results in the edges to be slightly blurrier. Due to the associative property of convolution, we find that applying a Gaussian derivative filter first and then convolving it with the image gives the same result as in 1.1. Thus, we attain the same images in in both parts. 
+    </p>
+
+    <h2>Part 2: Fun with Frequencies</h2>
+
+    <h3>2.1: Image Sharpening</h3>
+    <p>To sharpen an image using the unsharp masking technique, we first apply a Gaussian blur to the image to create a low-pass filtered version. Then, we subtract the blurred image from the original to isolate the high frequencies. By adding a scaled amount (by the coefficient "alpha) of these high frequencies back to the original image, you can enhance the sharpness. Higher alphas correspond the stronger higher frequencies in the resulting image. However, if your alpha is too high the output image will look too noisy and have extra artifacts.</p>
+    
+    <p><strong>Images:</strong></p>
+    <p>For the Taj image, I found that the alpha that produced the best results visually was alpha = 1.0</p>
+    <ul>
+        <li><img src="media/taj.png" alt="Original Blurry Image"></li>
+    </ul>
+    
+    Best Bagel Pic Alpha: 10
+    <ul>
+        <li><img src="media/bagel.png" alt="Blurred and then Sharpened Image"></li>
+    </ul>
+    Best Jellyfish pic Alpha: 3
+    <ul>
+        <li><img src="media/jellyfish.png" alt="Original Sharp Image"></li>
+
+    </ul>
+
+    <h3>2.2: Hybrid Images</h3>
+    <p>Hybrid images are created by combining high-frequency details from one image and low-frequency details from another. Below, I show three examples of the hybrid images I made and I used cutoff frequencies that I thought gave visually the best results through experimentation.</p>
+    <p>How hybrid images work is that, for the human visual system, lower frequencies dominate at a distance because our eyes focus on broader structures and up close, the high-frequency image dominates due to its sharp details. </p>
+    <p>For the cat and man hybrid image, I aligned both image by selecting their irises. For the poster image, I did something similar but aligned it by clicking on the corners of the "K" and "P" in "Keep." Finally, for the third image, I selected the locations of the nostrils to align for the final hybrid image.
+    </p>
+    <p><strong>Images:</strong></p>
+    <ul>
+        Nutmeg Cat and Derek Picture Hybrid
+        <li><img src="media/hybcat.png" alt="Hybrid Image 1"></li>
+        Hybrid Keep Calm Cake Posters
+        <li><img src="media/hybcake.png" alt="Hybrid Image 2"></li>
+        Failed Meme Poster
+        <li><img src="media/hybmeme.png" alt="Hybrid Image 2"></li>
+        This Meme poster is a failure because instead of two different images at different distances, it's the same merged two photos at any distance. You can see both faces at whatever distance you look at this and this is due to the difference between the images (closed vs open eye) share the same edge at a relatively similar location. Thus, the image only  has
+        an emphasized bottom edge for the eyes and you can still see the opened eye. 
+
+    </ul>
+
+
+    <h3>2.3 & 2.4: Gaussian and Laplacian Stacks (Oraple)</h3>
+    <p>For this part, I implemented Gaussian and Laplacian stacks to prepare images for multi-resolution blending, as described in Burt and Adelson's 1983 paper. The Gaussian stack is created by continuously applying a Gaussian blur to the image without downsampling, making sure level has the same dimensions as the original picture. The Laplacian stack is then generated by subtracting consecutive levels of the Gaussian stack, capturing high-frequency details at each level. Both stacks are visualized through normalization to display the varying frequency components at each layer. 
+        Doing this allows for smooth image blending, by aligning the frequency bands and blending them at different resolutions. 
+    </p>
+    <p><strong>Images:</strong></p>
+    <ul>
+        <li><img src="media/gaussian_apple.png" alt="Gaussian Apple"></li>
+        <li><img src="media/laplacian_apple.png" alt="Laplacian Apple"></li>
+        <li><img src="media/gaussian_orange.png" alt="Gaussian Orange"></li>
+        <li><img src="media/laplacian_orange.png" alt="Laplacian Orange"></li>
+        <li><img src="media/oraple.png" alt="Oraple"></li>
+    </ul>
+    <h3>2.4: Multiresolution Blending (Oraple)</h3>
+    <p>
+        Here, to make the orapple I make a half mask that is generated as a step function that blends across the seam. I use Gaussian blurring of the mask to make a smooth transition between the two images and I reconstruct the image by combining the blended Laplacian stacks from both images.
+        I also use this method and an irregular mask to make my last image where I blend the Japanese Flag and the Linkedin Logo.    </p>
+    <p>The Orapple left and right stacks: </p>
+    <ul>
+        <li><img src="media/lr.png" alt="Creative Blend 1"></li>
+    </ul>
+    <h4>Creative Blends</h4>
+    <p>Below are some additional blends with the last one being an irregular mask</p>
+    <ul>
+        Healthy and Sick Duolingo Logo :D
+        <li><img src="media/bothbirds.png" alt="Creative Blend 1"></li>
+
+        <li><img src="media/sickduo.png" alt="Creative Blend 1"></li>
+        Adrien Agreste from Miraculous Ladybug Manga vs Show Version
+        <li><img src="media/adrien.png" alt="Creative Blend 1"></li>
+        <li><img src="media/felix.png" alt="Creative Blend 2"></li>
+        Irregular Circle Mask on the Japanese Flag with the Linkedin Logo
+        <li><img src="media/irrmask.png" alt="Creative Blend 2"></li>
+
+    </ul>
+
+    <p>CS180 - Project 2 | September 2024 | Author: Annie Zhang</p>
+
+</body>
+</html>
