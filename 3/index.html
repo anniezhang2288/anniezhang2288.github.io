@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CS180/280A Project 3: Face Morphing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 100%; /* Ensures the image doesn't exceed the container width */
+            height: auto; /* Keeps the aspect ratio */
+        }
+        .image-container {
+            text-align: center;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>CS180/280A Project 3: Face Morphing</h1>
+
+    <h2>Part 1: Defining Correspondences</h2>
+    <p>In this part of the project, I manually defined pairs of corresponding points on images of Drake and Barack Obama using the class-provided online labeling tool. I marked key facial features like the eyes, nose, mouth, and chin to ensure precise alignment for smooth morphing. For consistent labeling, I manually mapped each point on Drake’s face to its equivalent on Obama’s. After labeling, I computed the Delaunay triangulation on the mean of both point sets. </p><p>
+        
+        Delaunay triangulation  connects points to form triangles such that it maximizes the minimum angle of each triangle to prevent thin or elongated triangles. 
+    </p>
+    <p><strong>Images:</strong></p>
+    <ul>
+        Example Delauney Triangulation: 
+        <li><img src="media/triangulation.png" alt="Delaunay Triangulation"></li>
+        Annotated Drake And Obama Images with Correspondence Points: 
+        <li><img src="media/drake_obama_keypoints.png" alt="Facial Keypoints"></li>
+        Delaunay Triangulation of Drake and Obama Images
+        <li><img src="media/drake_obama_triangulation.png" alt="Facial Keypoints"></li>
+
+    </ul>
+
+    <h2>Part 2: Computing the "Mid-way Face" (Voila!! I present: Drobama)</h2>
+    <p>In this part, I implemented the <code>mid_way_face</code> function, which combines two faces (Drake and Obama) to create a blended mid-way face. First, I calculated the average shape by taking the mean of the corresponding keypoints from both images. Next, I warped each face to match this average shape using affine transformations. Lastly, I cross-dissolve the two warped images to get the final mid-way image. </p>
+
+    <ol>
+        <li><strong>Implement <code>computeAffine(tri1_points, tri2_points)</code>:</strong>
+            <p>For the computeAffine function, it  calculates a 2x3 affine transformation matrix that maps a triangle from one face to a corresponding triangle in the average shape. I then constructed a linear system using the triangle coordinates and solved for the affine matrix to make sure the transformation accounts for both scaling and translation.</p>
+        </li>
+    
+        <p><strong>2. Warp Each Face to the Average Shape:</strong> 
+            <p>  For each triangle, I computed the inverse of the affine matrix <em>A</em>. Then, I used inverse-warping to find the corresponding "source points" in the original image for each pixel in the average shape. These source points often resulted in non-integer coordinates, so I applied bilinear interpolation to get a smooth combination of pixel values from the source image.</p>
+        </p>
+    
+        <li><strong>Polygon Masking for Triangle Regions:</strong>
+            <p>To make sure that only the current triangle was affected, I created a mask using the polygon vertices of the triangle in the average shape with skimage.draw.polygon. The mask isolates the region to be warped and prevents overlapping effects from other triangles. I repeated this process as I looped over each triangle in the triangulation to warp both Drake’s and Obama’s faces to the average shape.</p>        </li>
+    
+        <li><strong>Cross-Dissolving the Warped Images:</strong>
+            <p>After warping both faces to the average shape, I cross-dissolved the images by averaging the pixel values of the two warped faces. This blending step combined the colors and textures of both Drake’s and Obama’s faces, resulting in a mid-way face that captures characteristics from both individuals.</p>
+        </li>
+    </ol>
+    
+    
+    <p><strong>Images:</strong></p>
+    <ul>
+        <li><img src="media/midway_face.png" alt="Original Face A"></li>
+    </ul>
+
+    <h2>Part 3: The Morph Sequence</h2>
+    <h2>Morphing Two Faces: Drake and Obama</h2>
+
+    <p>In this part of the project, I implemented a <code>morph</code> function to warp between the faces of Drake and Barack Obama.</p>
+    
+    <p>To do this, I:</p>
+    
+    <ol>
+        <li><strong>Define the Morph Function:</strong>
+            <p>The <code>morph(im1, im2, im1_pts, im2_pts, tri, warp_frac, dissolve_frac)</code> function takes in two images and their corresponding keypoints. It produces a morphed image by combining shape and color information from both images based on the <code>warp_frac</code> and <code>dissolve_frac</code> parameters, which range from 0 (original face) to 1 (target face).</p>
+        </li>
+    
+        <li><strong>Computing Intermediate Shape:</strong>
+            <p>For each frame, the intermediate shape is calculated as a weighted average of the keypoints from both images using the formula:</p>
+            <pre><code>intermediate_shape = (1 - warp_frac) * im1_pts + warp_frac * im2_pts</code></pre>
+        </li>
+    
+        <li><strong>Affine Transformation and Warping:</strong>
+            <p>Similar to the previous part, each frame computes an affine transformation matrix for each triangle in the Delaunay triangulation of the average shape. The matrix maps the triangles in both images to their respective positions in the intermediate shape. Using inverse warping, each pixel in the intermediate shape is mapped back to the corresponding source pixel in the original images.</p>
+        </li>
+    
+        <li><strong>Cross-Dissolving:</strong>
+            <p>After warping both images to the intermediate shape, I blend them using cross-dissolving. The pixel values are averaged based on the <code>dissolve_frac</code> parameter:</p>
+            <pre><code>morphed_im = (1 - dissolve_frac) * im1_warped + dissolve_frac * im2_warped</code></pre>
+        </li>
+    </ol>
+    
+        <p><strong>Morph Sequence GIF:</strong></p>
+    <ul>
+        <li><img src="media/drake_obama.gif" alt="Morph Sequence"></li>
+
+    </ul>
+    <p><strong>Morph Sequence SubImages:</strong></p>
+    <ul>
+        <li><img src="media/drake_obama_sequence.png" alt="Morph Sequence"></li>
+
+    </ul>
+
+    <h2>Part 4: The Mean Face of a Population</h2>
+    
+<p>In this part of the project, I got my images from the Brazilian FEI Face Dataset and used the pictures of female faces (no expression), to compute the average Brazilian female face. I achieved this by first calculating the average face shape and then morphing each individual face in the dataset into the average shape. Finally, I warped my own face onto the average shape to visualize how my features align with the population's mean face.</p>
+
+<h3>Implementation Steps</h3>
+
+<ol>
+    <li><strong>Compute the Average Face Shape:</strong>
+        <p>Like previous parts, I loaded the images and their respective keypoints and computed the average face shape by taking the mean of the corresponding keypoints across all the images. </p>
+    </li>
+    
+    <li><strong>Morph Each Face into the Average Shape:</strong>
+        <p>Using the computed average shape, I morphed each face in the dataset to match the average shape, similar to the previous sections. However, to increase precision, I manually looped through all the keypoints files and added the coordinates of the 4 corners of the images as points to improve warping. </p>
+    </li>
+
+</ol>
+    <p><strong>Images:</strong></p>
+    <ul>
+        Average Brazillian Female Face:
+        <li><img src="media/mean_face.png" alt="Mean Face of the Population"></li>
+        My Face Onto Brazillian Face
+        <li><img src="media/my_face_onto_brazillian.png" alt="My Face Warped to Mean Geometry"></li>
+        My Face Warped Onto the Average Brazillian Woman Face (No Keypoints)
+        <li><img src="media/no_keypts_my_face_onto_brazillian.png" alt="Mean Face Warped to My Geometry"></li>
+    </ul>
+    <p>In addition, I also performed the reverse operation: The Average Brazillian Face Warped Onto My Face</p>
+    <ul>
+        Brazillian Face Warped Onto My Face
+        <li><img src="media/brazillian_face_onto_my_face.png" alt="My Face Warped to Mean Geometry"></li>
+        My Face Warped Onto the Average Brazillian Woman Face (No Keypoints)
+        <li><img src="media/no_keypts_brazillian_face_onto_my_face.png" alt="Mean Face Warped to My Geometry"></li>
+    </ul>
+
+    <p>Here are some of the results of the average Brazillian face warped onto some of the images I used for my dataset. </p>
+    <ul>
+        Original and Warped Faces Comparison: 
+        <li><img src="media/population_onto_mean.png" alt="Mean Face of the Population"></li>
+
+    </ul>
+    <div>
+        <h2>Part 5: Caricature Creation through Extrapolation</h2>
+        <p>
+            Here, I created a caricature of my face by manipulating my keypoints relative to the average Brazilian face keypoints and <strong>exaggerated</strong> the differences using a scaling factor called <code>alpha</code>.
+        </p>
+    
+        <p>
+            <strong>Exaggerating Features Using <code>alpha</code>:</strong><br>
+            I started by calculating the difference between my facial keypoints (<code>my_keypoints</code>) and the average Brazilian keypoints (<code>average_keypoints</code>):
+        </p>
+        <pre><code>diff = brazilian_pts - my_keypoints</code></pre>
+        <p>
+            The variable <code>diff</code> represents how each of my facial features differs from the average face. A positive difference means my feature is larger or further away from the average, while a negative difference means it is smaller or closer.
+        </p>
+        <p>
+            To create an exaggerated caricature, I amplified these differences using an <code>alpha</code> factor:
+        </p>
+        <pre><code>exaggerated_brazilian_pts = brazilian_pts + alpha * diff</code></pre>
+        <p>
+            The <code>alpha</code> value determines the degree of exaggeration:
+        </p>
+        <ul>
+            <li><code>alpha = 1</code>: No exaggeration occurs, as <code>exaggerated_brazilian_pts</code> is exactly the same as <code>brazilian_pts</code>.</li>
+            <li><code>alpha > 1</code>: Features are pushed further away from the mean, creating a more exaggerated caricature. For example, <code>alpha = 1.5</code> means each feature is moved 50% further away from the average shape, resulting in a more pronounced caricature.</li>
+            <li><code>0 &lt; alpha &lt; 1</code>: Features are pulled closer to the average shape, producing a subtler caricature effect.</li>
+        </ul>
+
+    </div>
+    
+        
+
+    
+
+    
+    <p><strong>Caricature Image (alpha = 1.5):</strong></p>
+    <ul>
+        <li><img src="media/caricature.png" alt="Caricature of My Face"></li>
+    </ul>
+
+    <h2>Bells and Whistles</h2>
+    <p>For the bells and whistles, I made a music video that morphs the faces of female celebrities that I obtained from Martin Schoeller's website.</p>
+    <p><strong>Video (Turn Sound On!!):</strong></p>
+    <div class="video-container">
+        <video controls width="400">
+            <source src="media/FemaleCelebritiesMorph.mp4" type="video/mp4">
+        </video>
+    </div>
+    
+    <style>
+        .video-container {
+            display: flex;
+            justify-content: center;  /* Centers horizontally */
+        }
+    </style>
+    
+
+    <p>CS180/280A - Project 3 | October 2024 | Author: Annie Zhang</p>
+
+</body>
+</html>
