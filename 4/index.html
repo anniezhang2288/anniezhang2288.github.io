@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CS180/280A Project 4: Image Mosaicing and Rectification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 40%;
+            height: auto;
+        }
+        .image-container {
+            text-align: center;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin-bottom: 20px;
+        }
+        .video-container {
+            display: flex;
+            justify-content: center;
+        }
+        ul.image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+}
+
+ul.image-grid li {
+    flex: 1 0 50%; /* Each item takes up 50% width */
+    padding: 10px; /* Optional padding between images */
+}
+
+ul.image-grid img {
+    width: 100%; /* Ensure images take up the full width of the list item */
+    height: auto; /* Maintain aspect ratio */
+}
+
+    </style>
+</head>
+<body>
+
+    <h1>CS180/280A Project 4: Image Mosaicing and Rectification</h1>
+
+
+
+    <h2>Part 1: Shooting and Digitizing Pictures</h2>
+    <p>For the mosaicing portion of the project, I started by capturing multiple images of the same scene with overlapping regions, aiming for a 40%-70% overlap between them. Using the overlapping regions, I would manually mark out the correspondence points between the pictures so that I could stick them together into a mosaic later. For some of the other images that I only wanted to rectify but not make a mosaic out of, I just marked out a quadrilateral that I wanted to rectify into a shape I manually defined, a rectangle. 
+
+        As to the mosaic component, when taking the images I made sure to take them close together in time so that I could minimize differences in exposure, lighting, and moving objects. In addition, to ensure consistency I took the images from the same position with my iPhone, I made sure to keep the relative position of my phone the same but only rotating my camera slightly to capture adjacent parts of the scene.</p>
+        <p>Images I took that I plan to rectify:</p>
+
+        <ul class="image-grid">
+        <li><img src="media/IMG_3014.jpg" alt="Rectified Image"></li>
+        <li><img src="media/IMG_2909 (2).jpg" alt="Rectified Image"></li>
+        </ul>
+        <p>Images I took that I plan to make a mosaic out of:</p>
+
+        <ul class="image-grid">
+        <li><img src="media/IMG_2955.jpg" alt="Rectified Image"></li>
+        <li><img src="media/IMG_2956.jpg" alt="Rectified Image"></li>
+        <li><img src="media/IMG_2977.jpg" alt="Rectified Image"></li>
+        <li><img src="media/IMG_2979.jpg" alt="Rectified Image"></li>
+        <li><img src="media/IMG_3070.jpg" alt="Rectified Image"></li>
+        <li><img src="media/IMG_3071.jpg" alt="Rectified Image"></li>
+    </ul>
+    
+
+ 
+
+    <h2>Part 2: Recovering Homographies</h2>
+    <p>The next step in the project was recovering the homography that maps one image onto another. To achieve this, I wrote the function <code>computeH(im1_points, im2_points)</code>, which computes the homography matrix <strong>H</strong> that aligns corresponding points from the first image (<code>im1_points</code>) with the second image (<code>im2_points</code>). The homography is derived using the equation <code>p' = H * p</code>, where <code>p</code> and <code>p'</code> represent corresponding points from the two images. The matrix <code>H</code> has eight unknowns (since the ninth entry is a scaling factor set to 1), and to solve for these unknowns, we need at least four point correspondences which will be the corners of the quadrilaterals we will warp.</p>
+
+    <p>To make the solution more robust to noise and improve the accuracy, I used around 15-20 point correspondences, which generated an overdetermined system of equations. I then solved this system using a least-squares method, which minimized the error in the homography estimation. This allowed for a more reliable alignment between the images, even in the presence of noise or minor inaccuracies in point selection.</p>
+    <h2>Part 3: Warping the Images</h2>
+    <p>After I computed the homographies, the next step was to warp the images using the homography matrix to map each pixel from the source image to the destination image's coordinate system. This step also makes sure that the images are aligned in the same space for the mosaic. </p>
+    <p> In this part of the code, I implemented the warp_image_with_homography(img, H) function, which warps an image img using a homography matrix H. This function is similar to an inverse warping method I previously implemented in another project. However, in this case, I also included logic to determine the size of the output image.
+
+        The main approach was to project the corners of the input image through the homography transformation H to compute the bounding box of the final warped image. Once the bounding box was established, I used it to create a grid of destination points where we want to sample pixel values. The key step is inverse mapping: we use the inverse of the homography to map from the destination grid back to the source image and use interpolation to compute the pixel values for these destination points.
+        
+        Due to the change in image size after warping, some destination pixels may not correspond to any source points, leaving gaps in the output. For these pixels, I filled them in with black, indicating that no corresponding source pixel exists in those regions.</p>
+
+
+    <h2>Part 4: Rectification</h2>
+    <p>For rectification, I transform a perception distorted image to a geometrically aligned version by selecting correspondence points between the distorted image, and a rectangular shape I want it to warp towards that I manually define. To achieve this, I manually selected points that formed a quadrilateral from the source image and mapped them to a rectangle shape I defined to give the appearance of looking at the object front-on instead of from the side. The main challenge was ensuring the precision of the selected points, as even a small misalignment could result in significant distortion in the final result.</p>
+
+    <p>This process also involved computing a homography matrix. A homography defines a transformation between two planes, and in this case, it allowed me to map the points from the source image to the target plane. By solving a system of linear equations, I derived the transformation matrix that ensured the warped image was geometrically consistent with the reference points. The solution was implemented using a least-squares method to minimize error, ensuring accuracy even with potential noise in point selection.</p><ul>
+        <li><img src="media/image.png" alt="Rectified Image"></li>
+    </ul>
+    <ul>
+        <li><img src="media/rect1.png" alt="Rectified Image"></li>
+    </ul>
+    <ul>
+        <li><img src="media/rect2b4.png" alt="Rectified Image"></li>
+    </ul>
+    <ul>
+        <li><img src="media/rect2.png" alt="Rectified Image"></li>
+    </ul>
+    <!-- <ul class="image-grid">
+        <li><img src="media/rect1b4pts.png" alt="Rectified Image"></li>
+        <li><img src="media/rect1.png" alt="Rectified Image"></li>
+        <li><img src="media/rect2b4.png" alt="Rectified Image"></li>
+        <li><img src="media/rect2.png" alt="Rectified Image"></li>
+      
+    </ul> -->
+    
+
+
+
+
+    <h2>Part 5: Blending the Images into a Mosaic</h2>
+    <p> To create the mosaic, I first use the class provided web tool from the previous project to select correspondence points between the left and right pictures of each scene I plan to use. With the code from the previous parts, I determine the H matrix that warps the left image onto the right image in the same space. These then become warped_im1 and warped_im2 which I then add together to create the mosaic. 
+
+        In my code, I first calculated the coordinates of the overlapping region by analyzing the bounding boxes returned by the warping function. Using these coordinates, I created a canvas large enough to hold both images. The images were then placed on the canvas at their respective positions. For this I compute the row and column offsets using the bounding boxes, and then I place im_1_warped, and place im2 offset onto the canvas with these offsets.combination of the two images was applied, resulting in a smooth blend. However, simply overlaying the images would result in visible seams and sharp edges where the images overlap. To solve this, I implemented alpha blending in the overlapping region. The idea behind alpha blending is to compute a weighted combination of the pixel values from both images, with the weight determined by the pixel's position within the overlapping region using the alpha coefficient. 
+        
+        In other words, for alpha blending we know the regions of the canvas that are the overlapping sections, so I change the pixel color values for that section with a convex combination of the left and right image. In addition, I have a coefficient alpha that decreases linearly as the pixel moves from left to right in that section. The result is that the at the right side of the overlap, the majority of the pixel contribution is from im2 and for the left side it’s mostly from im2 and a weighted average in the middle. </p>
+        
+        
+        
+    <p>Below are the mosaics created using this blending technique in the this format: 1) First image with correspondence points overlaid (shown with green circles), 2) Second image with correspondence points overlaid (shown with green circles), 3) Mosaic without blending and after alignment/warping, 4) final mosaic after blending</p>
+    <ul>
+        <li><img src="media/mosaic1left.png" alt="Final Image Mosaic"></li>
+    </ul>
+    <p></p>
+    <ul>
+        <li><img src="media/mosaic1right.png" alt="Final Image Mosaic"></li>
+    </ul>
+    <ul>
+        <li><img src="media/mosaic1no_blend.png" alt="Final Image Mosaic"></li>
+    </ul>
+    <ul>
+        <li><img src="media/mosaic1.png" alt="Final Image Mosaic"></li>
+    </ul>
+    <p>Mosaic 2:</p>
+    <ul>
+        <li><img src="media/mosaic2left.png" alt="Final Image Mosaic"></li>
+    </ul>
+    <ul>
+        <li><img src="media/mosaic2right.png" alt="Final Image Mosaic"></li>
+    </ul>
+    <ul>
+        <li><img src="media/mosaic2no_blend.png" alt="Final Image Mosaic"></li>
+    </ul>
+    <ul>
+        <li><img src="media/mosaic2.png" alt="Final Image Mosaic"></li>
+    </ul>
+    <p>Mosaic 3:</p>
+
+    <ul>
+        <li><img src="media/mosaic3left.png" alt="Final Image Mosaic"></li>
+    </ul>
+    <ul>
+        <li><img src="media/mosaic3right.png" alt="Final Image Mosaic"></li>
+    </ul>
+    <ul>
+        <li><img src="media/mosaic3no_blend.png" alt="Final Image Mosaic"></li>
+    </ul>
+    <ul>
+        <li><img src="media/mosaic3.png" alt="Final Image Mosaic"></li>
+    </ul>
+
+
+    <p>CS180/280A - Project 4| October 2024 | Author: Annie Zhang</p>
+
+</body>
+</html>
