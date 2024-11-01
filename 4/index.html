@@ -49,7 +49,8 @@ ul.image-grid img {
 </head>
 <body>
 
-    <h1>CS180/280A Project 4: Image Mosaicing and Rectification</h1>
+    <h1>CS180/280A Project 4A: Image Mosaicing and Rectification</h1>
+    <p> (scroll down for part 4B)</p>
 
 
 
@@ -168,8 +169,50 @@ ul.image-grid img {
         <li><img src="media/mosaic3.png" alt="Final Image Mosaic"></li>
     </ul>
 
+    <h1>CS180/280A Project 4B: Image Mosaicing and Rectification</h1>
+    <h2>Part 1: Detecting Corner Features in an Image</h2>
+    <p>To find potential matching points, I used the provided code for the Harris Interest Corner Detector to identify corners in each image. We use corners for alignment because they represent areas of change in multiple directions, making them unique and less prone to mismatches compared to edges or flat regions. The Harris detector produces a response map of corner “strengths,” from which the strongest corners are selected as potential feature points for matching. The code first computes the corner strengths by using the harmaonic mean of the H matrix Eigen values before picking the local maximal that is above the defined threshold</p>
 
-    <p>CS180/280A - Project 4| October 2024 | Author: Annie Zhang</p>
+    <ul class="image-grid">
+        <li><img src="media/harris1.png" alt="Harris Corners 1"></li>
+        <li><img src="media/harris2.png" alt="Harris Corners 2"></li>
+        <li><img src="media/harris3.png" alt="Harris Corners 3"></li>
+        <li><img src="media/harris4.png" alt="Harris Corners 4"></li>
+        <li><img src="media/harris5.png" alt="Harris Corners 5"></li>
+        <li><img src="media/harris6.png" alt="Harris Corners 6"></li>
+    </ul>
 
+    <h2>Part 2: Extracting a Feature Descriptor for Each Feature Point</h2>
+    <p>For adaptive non-maximal suppression, I implemented a technique to filter down to the most significant and spatially distributed interest points. First, I calculate the corner strength for each detected point and sort them in descending order of strength. Using this sorted list, the function calculates a "suppression radius" for each point: the smallest distance to another point with a stronger corner response, adjusted by a robustness factor <code>c_robust</code>. This suppression radius ensures that only points with relatively higher strength in their local neighborhood are retained. To efficiently find neighboring points, a KD-tree structure is used, speeding up the search for the nearest stronger points. After calculating suppression radii for all points, I select the top <code>top_n</code> points with the largest radii, ensuring that the strongest points are not only well-distributed but also the most distinct in terms of corner strength. This reduces the initial set of thousands of points to a more manageable subset (around 100), providing a robust and reliable set of feature points for matching.</p>
+
+    <h2>Part 3: Matching Feature Descriptors Between Images</h2>
+    <p>After detecting corners in the image, I extracted feature descriptors for each corner point to make them comparable across images. For each detected corner, a 40x40 pixel window centered around the point is captured, containing the local texture information. This window is then downscaled to an 8x8 patch, reducing the descriptor's dimensionality while preserving essential details of the surrounding texture. Each descriptor is normalized to mitigate the effects of lighting differences and variations in brightness, allowing it to be consistent under different environmental conditions. This process ensures that each feature descriptor represents the local pattern around the corner and has higher precision. </p>
+    <p>In this step, I wrote the <code>extract_color_descriptors</code> function to generate descriptors for each image's keypoints, capturing the local texture around each point. I then find correspondences using the <code>match_features</code> function, which calculates distances between all descriptors of the two images. Lowe's ratio test is applied to improve match reliability so for each descriptor, we compare the distance to its nearest neighbor (1-NN) with the second nearest neighbor (2-NN). If the ratio of 1-NN to 2-NN is below 0.6, the match is accepted. After trial and error, I found that setting this threshold to 0.6 allows me to enough matches while reducing false positives. This yields two arrays of matched points, ready for alignment in the next steps.</p>
+    <p>Unfortunatly, I was unable to enable some of the pictures to have enough matching or the correct matching features so I implemented this part to the best of my ability. This affected my later steps for computing a homography between matches as well as the final mosaics not being very cohesive.</p>
+
+    <ul class="image-grid">
+        <li><img src="media/match1.png" alt="Feature Matches 1"></li>
+        <li><img src="media/match2.png" alt="Feature Matches 2"></li>
+        <li><img src="media/match3.png" alt="Feature Matches 3"></li>
+    </ul>
+
+    <h2>Part 4: RANSAC Homography</h2>
+    <p>To compute a robust homography, I used an implementation of RANSAC. First, I randomly sampled four pairs of matched points from the set of correspondences and used them to calculate a homography matrix, treating this as a candidate transformation. For each candidate homography, I applied it to all matched points and counted the inliers—points whose transformed position fell within a set distance (epsilon) of their corresponding points in the second image. I repeated this sampling process for all the points, each time calculating a new homography and evaluating it based on the inlier count. At the end of the iterations, I selected the homography with the highest inlier count as the final transformation. This method allowed me to identify a homography that best aligns the images while minimizing the influence of outliers, ensuring a more accurate and stable alignment.</p>
+
+    <h2>Part 5: Final Mosaic</h2>
+    <p>Here are the final mosaics, created using both manual and automatic stitching. Unfortunately my feature matching was not the most accurate so my warping code from part 4a was not able to correctly warp the two images to be a mosaic. Below are the results, the top image being the automatic mosaic while the bottom one is the manual one.</p>
+
+    <ul class="image-grid">
+        <li><img src="media/auto1.png" alt="Automatic Mosaic 1"></li>
+        <li><img src="media/mosaic1.png" alt="Manual Mosaic 1"></li>
+        <li><img src="media/auto2.png" alt="Automatic Mosaic 2"></li>
+        <li><img src="media/mosaic2.png" alt="Manual Mosaic 2"></li>
+        <li><img src="media/auto3.png" alt="Automatic Mosaic 3"></li>
+        <li><img src="media/mosaic3.png" alt="Manual Mosaic 3"></li>
+    </ul>
+
+    <p>This project taught me how to do feature detection with Harris interest corners in image mosaics. In addition, I thought learning about Lowe's thresholding to use both the first and second neighbor to estimate the interest point correspondence points was interesting. </p>
+
+    <p>CS180/280A - Project 4 | October 2024 | Author: Annie Zhang</p>
 </body>
 </html>
