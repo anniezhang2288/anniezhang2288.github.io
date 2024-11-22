@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CS180 Project 5: Exploring Diffusion Models</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            text-align: center;
+        }
+        p {
+            text-align: justify;
+        }
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        img {
+            display: block;
+            margin: 10px auto;
+            max-width: 60%;
+            height: auto;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul.image-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        ul.image-grid li {
+            flex: 1 0 30%;
+            padding: 10px;
+        }
+        ul.image-grid img {
+            width: 100%;
+            height: auto;
+        }
+        .note {
+            font-size: 0.9em;
+            color: gray;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>CS180: Project 5</h1>
+    <h2>Exploring Diffusion Models</h2>
+    <p><strong>Student Name:</strong> Annie Zhang</p>
+
+    <h2>Part A: The Power of Diffusion Models</h2>
+
+    <h3>Part 0: Setup</h3>
+    <p>The DeepFloyd IF diffusion model was used, operating in two stages. Stage 1 generates low-resolution images, and Stage 2 refines them into high-resolution outputs. Random seed 280 was used consistently for reproducibility.</p>
+    
+    <p>At the lower resolution of 64x64 produced by Stage 1, the generated images effectively convey the overall structure and color scheme related to the prompts but lack intricate details, resulting in more abstract visuals. In contrast, the higher resolution of 256x256 achieved in Stage 2 significantly enhances these initial outputs by introducing finer details and textures, making the images appear more realistic and coherent. Adjusting the number of inference steps (e.g., from 20 to 80) highlights a trade-off: fewer steps result in quicker generation but less polished images, whereas more steps improve the output quality at the cost of increased computation time.
+    </p>
+    <h4>Inference Steps: 20</h4>
+    <h5>64x64 Resolution</h5>
+    <ul class="image-grid">
+        <li><img src="media/641.png" alt="Man Wearing Hat"></li>
+        <li><img src="media/642.png" alt="Man Wearing Hat"></li>
+        <li><img src="media/643.png" alt="Man Wearing Hat"></li>
+    </ul>
+
+    <h5>256x256 Resolution</h5>
+     <ul class="image-grid">
+        <li><img src="media/6411.png" alt="Man Wearing Hat"></li>
+        <li><img src="media/6422.png" alt="Man Wearing Hat"></li>
+        <li><img src="media/6433.png" alt="Man Wearing Hat"></li>
+    </ul>
+    <h4>Inference Steps: 80</h4>
+    <h5>64x64 Resolution</h5>
+    <ul class="image-grid">
+        <li><img src="images/placeholder_64_80_1.jpg" alt="Man Wearing Hat"></li>
+        <li><img src="images/placeholder_64_80_2.jpg" alt="Oil Painting"></li>
+        <li><img src="images/placeholder_64_80_3.jpg" alt="Rocket Ship"></li>
+    </ul>
+    <h5>256x256 Resolution</h5>
+    <ul class="image-grid">
+        <li><img src="images/placeholder_256_80_1.jpg" alt="Man Wearing Hat"></li>
+        <li><img src="images/placeholder_256_80_2.jpg" alt="Oil Painting"></li>
+        <li><img src="images/placeholder_256_80_3.jpg" alt="Rocket Ship"></li>
+    </ul>
+    <p class="note">Reflection: Higher resolutions (256x256) add significant detail and realism. Increased inference steps (e.g., 80) improve quality but require more computation time.</p>
+
+    <h3>Part 1: Sampling Loops</h3>
+    <p>
+        Diffusion models create images by reversing a process that incrementally adds noise. Starting with an original clean image, \( x_0 \), noise is gradually introduced at each timestep \( t \), resulting in increasingly noisy versions, \( x_t \), until the image becomes pure noise at \( t = T \). The purpose of the diffusion model is to predict and remove this noise step by step, allowing the recovery of \( x_0 \) or partially denoised intermediates like \( x_{t-1} \).
+    </p>
+    <p>
+        The generation process begins with a completely random Gaussian noise sample, \( x_T \), at \( T = 1000 \) (in the case of DeepFloyd). The model utilizes pre-learned noise coefficients, \( \bar{\alpha}_t \), to estimate the noise in \( x_t \). This noise is subtracted to produce a cleaner image for the preceding timestep. This iterative process continues until the original clean image, \( x_0 \), is reconstructed. The coefficients \( \bar{\alpha}_t \) and the sequence of denoising steps are pre-determined during the model's training phase.
+    </p>
+    <h4>Part 1.1: Forward Process</h4>
+    <p>The forward process incrementally adds noise to a clean image \( x_0 \), generating noisy images \( x_t \). Below are the original campanile image, followed by examples at noise levels \( t = 250, 500, 750 \):</p>
+    <ul class="image-grid">
+        <li><img src="media/test.png" alt="Original Campanile"></li>
+        <li><img src="media/11_250_noise.png" alt="Campanile Noise 250"></li>
+        <li><img src="media/11_500_noise.png" alt="Campanile Noise 500"></li>
+        <li><img src="media/11_750_noise.png" alt="Campanile Noise 750"></li>
+    </ul>
+
+    <h4>Part 1.2: Classical Denoising</h4>
+    <p>
+        One of the important components of diffusion models is the forward process, where a clean image \( x_0 \) is incrementally corrupted with noise over a series of timesteps, producing increasingly noisy versions \( x_t \). This process is mathematically defined as:
+    </p>
+    <div class="equation">
+        \[
+        q(x_t \mid x_0) = \mathcal{N}(x_t; \sqrt{\bar{\alpha}_t} x_0, (1 - \bar{\alpha}_t) \mathbf{I})
+        \]
+    </div>
+    <p>
+        The above equation can also be expressed as:
+    </p>
+    <div class="equation">
+        \[
+        x_t = \sqrt{\bar{\alpha}_t} x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon,
+        \]
+    </div>
+    <p>
+        where \( \epsilon \sim \mathcal{N}(0, 1) \). Here, \( x_t \) is sampled from a Gaussian distribution with a mean of \( \sqrt{\bar{\alpha}_t} x_0 \) and a variance of \( (1 - \bar{\alpha}_t) \). This forward process is designed to both scale the original image \( x_0 \) by \( \sqrt{\bar{\alpha}_t} \) and add Gaussian noise.In this approach, we applied Gaussian blur as a classical denoising technique. The blur was configured with a kernel size of 7 and a standard deviation (\( \sigma \)) of 1.3 on the same images that were produced above in 1.1. 
+    </p>    <ul class="image-grid">
+        
+        <li><img src="media/12_250.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/12_500.png" alt="Gaussian Blur 500"></li>
+        <li><img src="media/12_750.png" alt="Gaussian Blur 750"></li>
+    </ul>
+    <h4>Part 1.3: Implementing One Step Denoising</h4>
+    <p>
+        A pretrained diffusion model was employed to remove noise from the images. The denoiser, implemented using <code>stage_1.unet</code>, is a U-Net-based architecture that has been trained on an extensive dataset of image pairs, represented as \( (x_0, x_t) \). This model is designed to predict and subtract Gaussian noise from noisy inputs, effectively reconstructing or closely approximating the original clean image, \( x_0 \). 
+    </p>
+    <p>
+        The U-Net architecture is conditioned on the specific timestep \( t \), allowing it to systematically refine the image at each stage of denoising. From left to right, the noise levels shown below are 250, 500, and 750 while the top row is the noisy image from before and the bottom row is the one-step denoising. 
+    </p>    <ul class="image-grid">
+        <li><img src="media/11_250_noise.png" alt="Campanile Noise 250"></li>
+        <li><img src="media/11_500_noise.png" alt="Campanile Noise 500"></li>
+        <li><img src="media/11_750_noise.png" alt="Campanile Noise 750"></li>
+        <li><img src="media/13_250_denoise.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/13_500_denoise.png" alt="Gaussian Blur 500"></li>
+        <li><img src="media/13_750_denoise.png" alt="Gaussian Blur 750"></li>
+    </ul>
+
+
+    <h4>Part 1.4: Iterative Denoising</h4>
+    <p>
+        To efficiently perform iterative denoising, we define a sequence of timesteps, referred to as <code>strided_timesteps</code>. This sequence skips over certain steps in the denoising process, starting from the noisiest image (corresponding to the highest \( t \)) and ending with the clean image (corresponding to the lowest \( t \)). The final timestep in this list, <code>strided_timesteps[-1]</code>, represents a fully denoised image. A typical stride interval, such as 30, works well for this approach.
+    </p>
+    <p>
+        At each \( i \)-th denoising step, the model processes the image at \( t = \text{strided_timesteps}[i] \) and refines it to \( t' = \text{strided_timesteps}[i + 1] \), producing a less noisy version. The refinement is computed using the formula:
+    </p>
+    <div class="equation">
+        \[
+        x_{t'} = \frac{\sqrt{\bar{\alpha}_{t'} \beta_t}}{1 - \bar{\alpha}_t} x_0 + \frac{\sqrt{\alpha_t (1 - \bar{\alpha}_{t'})}}{1 - \bar{\alpha}_t} x_t + \nu_\sigma
+        \]
+    </div>
+    <p><strong>Where:</strong></p>
+    <ul>
+        <li>\( x_t \): The image at the current timestep \( t \).</li>
+        <li>\( x_{t'} \): The refined image at the next timestep \( t' \).</li>
+        <li>\( \bar{\alpha}_t \): The cumulative product of alphas, represented as <code>alphas_cumprod</code>.</li>
+        <li>\( \alpha_t = \frac{\bar{\alpha}_t}{\bar{\alpha}_{t'}} \).</li>
+        <li>\( \beta_t = 1 - \alpha_t \).</li>
+        <li>\( x_0 \): The estimated clean image (derived in Section 1.3).</li>
+        <li>\( \nu_\sigma \): Random noise term predicted by the model.</li>
+    </ul>
+    <p>
+        The noise term \( \nu_\sigma \) is generated by the model (e.g., DeepFloyd), and the computation process is abstracted using the <code>add_variance</code> function. This iterative refinement progressively reduces noise, enabling the transformation of noisy inputs into a clean approximation.
+    </p>    
+
+    <p> The first two rows are the iteratively denoised image, followed by the image at time step 90, 240, 390, 540, and 690 while the third row is the original campanile image, the one step cleaned version, and the gaussian blurred version</p>
+    <ul class="image-grid">
+        <li><img src="media/14_final.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/14_90.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/14_240.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/14_390.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/14_540.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/14_690.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/test.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/one.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/gb.png" alt="Gaussian Blur 250"></li>
+
+    </ul>
+
+    <h4>Part 1.5: Diffusion Model Sampling</h4>
+    <p>Starting with random noise (\( i_{\text{start}} = 0 \)), the diffusion model generated images through iterative refinement:</p>
+    <ul class="image-grid">
+        <li><img src="media/15_1.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/15_2.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/15_3.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/15_4.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/15_5.png" alt="Gaussian Blur 250"></li>
+    </ul>
+    <h4>Part 1.6: Diffusion Model Sampling</h4>
+    <p>
+        The quality of the generated images in the previous section was suboptimal, with some outputs being completely incoherent. To enhance the quality of these images, we employ a technique called Classifier-Free Guidance (CFG).
+    </p>
+    <p>
+        CFG works by combining a conditional noise estimate (\( \epsilon_c \)) with an unconditional noise estimate (\( \epsilon_u \)). The final noise estimate is calculated using the formula:
+    </p>
+    <div class="equation">
+        \[
+        \epsilon = \epsilon_u + \gamma (\epsilon_c - \epsilon_u)
+        \]
+    </div>
+    <p>
+        Here, \( \gamma \) is a parameter that controls the influence of CFG. For \( \gamma = 0 \), the output corresponds to the unconditional noise estimate, while \( \gamma = 1 \) yields the conditional noise estimate. The real improvement occurs when \( \gamma > 1 \), producing significantly higher-quality images. Here are some images with gamma = 7.
+    </p>    <ul class="image-grid">
+        <li><img src="media/16_1.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/16_2.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/16_3.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/16_4.png" alt="Gaussian Blur 250"></li>
+        <li><img src="media/16_5.png" alt="Gaussian Blur 250"></li>
+    </ul>
+
+    <h4>Part 1.7: Image-to-Image Translation</h4>
+    <p>
+        In this task, we start with the original test image, introduce a small amount of noise, and project it back onto the image manifold without using any conditioning. This technique produces images that resemble the test image but exhibit slight variations due to the introduced noise. The last image in the second row is the final result while the image after in the 3rd row is the original test image of the campanile.
+    </p>
+    <h3>Test Image: Campanile</h3>    <ul class="image-grid">
+        <li><img src="media/171_1.png" alt="Translation Step 1"></li>
+        <li><img src="media/171_2.png" alt="Translation Step 1"></li>
+        <li><img src="media/171_3.png" alt="Translation Step 1"></li>
+        <li><img src="media/171_4.png" alt="Translation Step 1"></li>
+        <li><img src="media/171_5.png" alt="Translation Step 1"></li>
+        <li><img src="media/171_6.png" alt="Translation Step 1"></li>
+        <li><img src="media/test.png" alt="Translation Step 1"></li>
+
+    </ul>
+
+    <h4>Part 1.7.1: Editing Hand-Drawn and Web Images</h4>
+    <p>This process modifies existing images by adding noise and guiding them back to a natural image space. Examples of transformations using noise levels \( i_{\text{start}} = 1, 3, 5, 7, 10, 20 \):</p>
+    <p>Original Images:</p>
+    <h3>Test Image: Campanile</h3>    <ul class="image-grid">
+        <li><img src="media/flower.png" alt="Translation Step 1"></li>
+        <li><img src="media/goma.png" alt="Translation Step 1"></li>
+        <li><img src="media/drawn.png" alt="Translation Step 1"></li>
+
+    </ul>
+    <ul class="image-grid">
+        <li><img src="media/1712_1.png" alt="Translation Step 1"></li>
+        <li><img src="media/1712_2.png" alt="Translation Step 1"></li>
+        <li><img src="media/1712_3.png" alt="Translation Step 1"></li>
+        <li><img src="media/1712_4.png" alt="Translation Step 1"></li>
+        <li><img src="media/1712_5.png" alt="Translation Step 1"></li>
+        <li><img src="media/1712_6.png" alt="Translation Step 1"></li>
+    </ul>
+
+    <ul class="image-grid">
+        <li><img src="media/1713_1.png" alt="Translation Step 1"></li>
+        <li><img src="media/1713_2.png" alt="Translation Step 1"></li>
+        <li><img src="media/1713_3.png" alt="Translation Step 1"></li>
+        <li><img src="media/1713_4.png" alt="Translation Step 1"></li>
+        <li><img src="media/1713_5.png" alt="Translation Step 1"></li>
+        <li><img src="media/1713_6.png" alt="Translation Step 1"></li>
+    </ul>
+    <ul class="image-grid">
+        <li><img src="media/1714_1.png" alt="Translation Step 1"></li>
+        <li><img src="media/1714_2.png" alt="Translation Step 1"></li>
+        <li><img src="media/1714_3.png" alt="Translation Step 1"></li>
+        <li><img src="media/1714_4.png" alt="Translation Step 1"></li>
+        <li><img src="media/1714_5.png" alt="Translation Step 1"></li>
+        <li><img src="media/1714_6.png" alt="Translation Step 1"></li>
+    </ul>
+    <h4>Part 1.7.2: Inpainting</h4>
+    <p>
+        Given an initial image \( x_{\text{orig}} \) and a binary mask \( \mathbf{m} \), the model generates a new image by preserving the original content where \( \mathbf{m} = 0 \) while creating new content where \( \mathbf{m} = 1 \).
+    </p>
+    <p>
+        The process involves running the diffusion denoising loop. At each iteration, after generating \( x_t \), the model adjusts \( x_t \) to match the original image \( x_{\text{orig}} \) wherever \( \mathbf{m} = 0 \). Mathematically, this is expressed as:
+    </p>
+    <p style="text-align: center;">
+        \( x_t \gets \mathbf{m} x_t + (1 - \mathbf{m}) \text{forward}(x_{\text{orig}}, t) \)
+    </p>
+    <p>
+        In essence, the model updates all regions inside the edit mask \( \mathbf{m} \) through the diffusion process while keeping the regions outside the mask consistent with the original image, ensuring the correct noise level for the given timestep \( t \).
+    </p>    <ul class="image-grid">
+        <li><img src="media/1721_1.png" alt="Translation Step 1"></li>
+        <li><img src="media/1721_2.png" alt="Translation Step 1"></li>
+        <li><img src="media/1721_3.png" alt="Translation Step 1"></li>
+        <li><img src="media/1721_4.png" alt="Translation Step 1"></li>
+
+    </ul>
+
+    <ul class="image-grid">
+        <li><img src="media/1722_1.png" alt="Translation Step 1"></li>
+        <li><img src="media/1722_2.png" alt="Translation Step 1"></li>
+        <li><img src="media/1722_3.png" alt="Translation Step 1"></li>
+        <li><img src="media/1722_4.png" alt="Translation Step 1"></li>
+    </ul>
+
+    <ul class="image-grid">
+        <li><img src="media/1723_1.png" alt="Translation Step 1"></li>
+        <li><img src="media/1723_2.png" alt="Translation Step 1"></li>
+        <li><img src="media/1723_3.png" alt="Translation Step 1"></li>
+        <li><img src="media/1723_4.png" alt="Translation Step 1"></li>
+    </ul>
+
+    <h4>Part 1.7.3: Text-Conditional Image-to-Image Translation</h4>
+    <p>
+        In this section, we expand upon image-to-image translation by incorporating a descriptive text prompt to influence the generated output. The provided text prompt serves as a guide, enabling more precise and targeted transformations in the generated content.
+    </p>
+    <p>
+        <strong>Test Image:</strong> Campanile<br>
+        <strong>Text Prompt:</strong> "a rocket ship"
+    </p>    <ul class="image-grid">
+        <li><img src="media/1731_1.png" alt="Translation Step 1"></li>
+        <li><img src="media/1731_2.png" alt="Translation Step 1"></li>
+        <li><img src="media/1731_3.png" alt="Translation Step 1"></li>
+        <li><img src="media/1731_4.png" alt="Translation Step 1"></li>
+        <li><img src="media/1731_5.png" alt="Translation Step 1"></li>
+        <li><img src="media/1731_6.png" alt="Translation Step 1"></li>
+    </ul>
+    <p>
+        <strong>Test Image:</strong> Rainbow<br>
+        <strong>Text Prompt:</strong> "a man with a hat"
+    </p> 
+    <ul class="image-grid">
+        <li><img src="media/1732_1.png" alt="Translation Step 1"></li>
+        <li><img src="media/1732_2.png" alt="Translation Step 1"></li>
+        <li><img src="media/1732_3.png" alt="Translation Step 1"></li>
+        <li><img src="media/1732_4.png" alt="Translation Step 1"></li>
+        <li><img src="media/1732_5.png" alt="Translation Step 1"></li>
+        <li><img src="media/1732_6.png" alt="Translation Step 1"></li>
+    </ul>
+    <p>
+        <strong>Test Image:</strong> hearts<br>
+        <strong>Text Prompt:</strong> "Hearts"
+    </p> 
+    <ul class="image-grid">
+        <li><img src="media/1733_1.png" alt="Translation Step 1"></li>
+        <li><img src="media/1733_2.png" alt="Translation Step 1"></li>
+        <li><img src="media/1733_3.png" alt="Translation Step 1"></li>
+        <li><img src="media/1733_4.png" alt="Translation Step 1"></li>
+        <li><img src="media/1733_5.png" alt="Translation Step 1"></li>
+        <li><img src="media/1733_6.png" alt="Translation Step 1"></li>
+    </ul>
+    <h4>Part 1.8: Visual Anagrams</h4>
+    <p>
+        In this section, we leverage diffusion models to craft optical illusions by skillfully combining various transformations and denoising processes. The method involves the following steps:
+    </p>
+    <ol>
+        <li>Perform a denoising operation on an image \( x_t \) at step \( t \) using the first prompt \( p_1 \), which provides the noise estimate \( \epsilon_1 \).</li>
+        <li>Flip the image \( x_t \) upside down, denoise it using a second prompt \( p_2 \), and compute a second noise estimate \( \epsilon_2 \).</li>
+        <li>Flip \( \epsilon_2 \) back to its original orientation and calculate the average of \( \epsilon_1 \) and \( \epsilon_2 \).</li>
+        <li>Apply a reverse diffusion step using the averaged noise estimate to generate the final image.</li>
+    </ol>
+
+    <div class="equation">
+        \[
+        \epsilon_1 = \text{UNet}(x_t, t, p_1)
+        \]
+        \[
+        \epsilon_2 = \text{flip}(\text{UNet}(\text{flip}(x_t), t, p_2))
+        \]
+        \[
+        \epsilon = \frac{\epsilon_1 + \epsilon_2}{2}
+        \]
+    </div>
+
+    <p>
+        This process effectively integrates complementary information from two prompts, producing images with intriguing visual effects.
+    </p>    <ul class="image-grid">
+        <li><img src="media/181_1.png" alt="Hybrid Image 1"></li>
+        <li><img src="media/181_2.png" alt="Hybrid Image 1"></li>
+    </ul>
+    <ul class="image-grid">
+        <li><img src="media/182_1.png" alt="Hybrid Image 1"></li>
+        <li><img src="media/182_2.png" alt="Hybrid Image 1"></li>
+    </ul>
+    <ul class="image-grid">
+        <li><img src="media/183_1.png" alt="Hybrid Image 1"></li>
+        <li><img src="media/183_2.png" alt="Hybrid Image 1"></li>
+    </ul>
+    <h4>Part 1.10: Hybrid Images</h4>
+    <p>
+        To generate hybrid images using a diffusion model, we create a composite noise estimate \( \epsilon \). This is done by computing the noise for two different text prompts and then merging the low-frequency elements from one estimate with the high-frequency components of the other.
+    </p>
+    <ol>
+        <li>Use the diffusion model \( \text{UNet} \) to calculate the first noise estimate \( \epsilon_1 \) with the text prompt \( p_1 \):</li>
+        <div class="equation">
+            \[
+            \epsilon_1 = \text{UNet}(x_t, t, p_1)
+            \]
+        </div>
+        <li>Similarly, compute the second noise estimate \( \epsilon_2 \) using a different text prompt \( p_2 \):</li>
+        <div class="equation">
+            \[
+            \epsilon_2 = \text{UNet}(x_t, t, p_2)
+            \]
+        </div>
+        <li>Combine the low frequencies of \( \epsilon_1 \) with the high frequencies of \( \epsilon_2 \) to obtain the final noise estimate \( \epsilon \):</li>
+        <div class="equation">
+            \[
+            \epsilon = f_{\text{lowpass}}(\epsilon_1) + f_{\text{highpass}}(\epsilon_2)
+            \]
+        </div>
+    </ol>
+
+    <p>
+        Here, \( f_{\text{lowpass}} \) is a low-pass filter, \( f_{\text{highpass}} \) is a high-pass filter, and \( p_1 \), \( p_2 \) represent two different text prompt embeddings. The resulting noise estimate \( \epsilon \) produces a hybrid image that blends characteristics from both prompts. Here the images are a coast and a skull, a man and a snowy village, and a coast and a snowy village.  
+    </p>
+    <p><The images here are an old man and a campfire, a man and a snowy village, and a snowy village and a photo of a man/p>
+    <ul class="image-grid">
+        <li><img src="media/191_1.png" alt="Hybrid Image 3"></li>
+        <li><img src="media/192.png" alt="Hybrid Image 3"></li>
+        <li><img src="media/193.png" alt="Hybrid Image 3"></li>
+
+    </ul>
+
+    <h2>Part B: Diffusion Models from Scratch</h2>
+
+    <h4>Part 1: Training a Single-Step Denoising UNet</h4>
+    <h2>Training Data Pairs</h2>
+    <p>
+        To train the denoiser, we must generate pairs of training data \((z, x)\), where \(x\) represents a clean MNIST digit. For each training batch, the noisy version \(z\) is created from \(x\) using the following noising process:
+    </p>
+    <div class="equation">
+        \[
+        z = x + \sigma \epsilon, \quad \epsilon \sim \mathcal{N}(0, \mathbf{I}),
+        \]
+    </div>
+    <p>
+        Here, \(\sigma\) is the noise level, and \(\epsilon\) is sampled from a standard normal distribution. These generated pairs serve as the foundation for training the model.
+    </p>
+    <div class="image-container">
+        <img src="media/211.png" alt="Training Results">
+    </div>
+    <p> Here are some of the noisy data and the training loss: </p>
+
+    <div class="image-container">
+
+    <img src="media/212_2.png" alt="Training Results">
+    <img src="media/212.png" alt="Training Results">
+        <img src="media/213.png" alt="Training Results">
+        <img src="media/214.png" alt="Training Results">
+    </div>
+    <h4>Part 2: Training a Diffusion Model</h4>
+    <p>A time-conditioned UNet was implemented to predict noise and reconstruct images iteratively. Results are shown below:</p>
+
+
+    <p> Here is the training loss of the Class Conditioned Model</p>
+    <h2>Training</h2>
+    <ul>
+        <li><span class="highlight">Objective:</span> Train a denoiser to remove noise with \(\sigma = 0.5\) from clean MNIST images \(x\).</li>
+        <li><span class="highlight">Dataset:</span> Utilize <code>torchvision.datasets.MNIST</code> for both training and testing. Training is performed exclusively on the training set, with shuffling applied prior to creating the dataloader. Batch size: 256. Training spans 5 epochs.</li>
+        <li><span class="highlight">Model:</span> Employ the U-Net architecture configured with a hidden dimension \(D = 128\).</li>
+        <li><span class="highlight">Optimizer:</span> Adopt the Adam optimizer, initialized with a learning rate of \(1 \times 10^{-4}\).</li>
+    </ul>
+
+    
+    <div class="image-container">
+
+    <img src="media/222.png" alt="Training Results">
+
+</div>
+
+
+
+    <h3>Final Reflection</h3>
+    <p>Throught this project, I was provided hands-on experience with diffusion models and their applications.</p>
+
+</body>
+</html>
