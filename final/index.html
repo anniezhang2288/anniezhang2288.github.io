@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS180 Final Project - Light Field Camera</title>
+</head>
+<body>
+    <h1>CS180 Final Project: Light Field Camera</h1>
+    
+    <h2>Overview</h2>
+    <p>
+        For my CS180 Final Project, I worked on implementing a light field camera! It was pretty cool and I learned a lot! Interesting how you can shift images slightly and do a few relatively simple operations to change the focus :)
+    </p>
+    
+    <h2>Depth Refocusing</h2>
+    <p>
+        The first part of the project involved depth refocusing. Using images from the Stanford Light Field Archive, 
+        I worked with 289 images of a chessboard and a flower taken from different (x, y) positions. The goal was to adjust focus to emphasize different parts of the image.
+    </p>
+    <p>
+        The process began by preprocessing the images to extract their respective (x, y) positions. 
+        Next, I calculated the difference between each (x, y) coordinate and the center position (8, 8). 
+        Using the <code>scipy.ndimage.shift</code> function, I shifted each image by <code>c * (x - 8)</code> and <code>-1 * c * (y - 8)</code>, 
+        where <code>c</code> represents the depth. Adjusting <code>c</code> allowed me to focus on different depths in the scene. 
+        Finally, I combined all the shifted images into a normalized average to produce the final output.
+    </p>
+    <h3>Chessboard Depth Refocusing (GIF)</h3>
+    <p>Depth focus simulated for <code>c</code> values ranging from 0 to 3 in steps of 0.2.</p>
+    <p><img src="media/chessboard.gif" alt="Chessboard Depth Refocusing GIF"></p>
+    
+    <h3>Flower Depth Refocusing (GIF)</h3>
+    <p>Depth focus simulated for <code>c</code> values ranging from 0 to 2 in steps of 0.2.</p>
+    <p><img src="media/flower.gif" alt="Flower Depth Refocusing GIF"></p>
+    
+    <h2>Aperture Adjustment</h2>
+    <p>
+        The second part of the project involved simulating aperture adjustment. 
+        Aperture controls the area of focus, allowing us to mimic the effect of increasing or decreasing aperture size. 
+        By selectively including images within a specific distance from the center, I could adjust the level of blur in the final output.
+    </p>
+    <p>
+        The implementation involved excluding images where the absolute difference between their (x, y) coordinates and the center (8, 8) exceeded the aperture threshold. 
+        The remaining images were combined into a normalized average. Below, you can see the results for varying aperture sizes.
+    </p>
+    <h3>Chessboard Aperture Adjustment (GIF)</h3>
+    <p>Simulated aperture size ranging from 0 to 10 in steps of 1, with <code>c = 1.5</code>.</p>
+    <p><img src="media/aperture_chessboard.gif" alt="Chessboard Aperture Adjustment GIF"></p>
+    
+    <h3>Flower Aperture Adjustment (GIF)</h3>
+    <p>Simulated aperture size ranging from 0 to 5 in steps of 1, with <code>c = 1.5</code>.</p>
+    <p><img src="media/flower_aperture.gif" alt="Flower Aperture Adjustment GIF"></p>
+</body>
+
+<body>
+    <h1>CS180 Final Project: High Dynamic Range</h1>
+    
+
+    <h2>Depth Refocusing</h2>
+    <p>
+        The first part of the project involved depth refocusing. Using images from the Stanford Light Field Archive, 
+        I worked with 289 images of a chessboard and a flower taken from different (x, y) positions. The goal was to adjust focus to emphasize different parts of the image.
+    </p>
+    <p>
+        The process began by preprocessing the images to extract their respective (x, y) positions. 
+        Next, I calculated the difference between each (x, y) coordinate and the center position (8, 8). 
+        Using the <code>scipy.ndimage.shift</code> function, I shifted each image by <code>c * (x - 8)</code> and <code>-1 * c * (y - 8)</code>, 
+        where <code>c</code> represents the depth. Adjusting <code>c</code> allowed me to focus on different depths in the scene. 
+        Finally, I combined all the shifted images into a normalized average to produce the final output.
+    </p>
+    <h3>Chessboard Depth Refocusing (GIF)</h3>
+    <p>Depth focus simulated for <code>c</code> values ranging from 0 to 3 in steps of 0.2.</p>
+    <p><img src="media/chessboard.gif" alt="Chessboard Depth Refocusing GIF"></p>
+    
+    <h3>Flower Depth Refocusing (GIF)</h3>
+    <p>Depth focus simulated for <code>c</code> values ranging from 0 to 2 in steps of 0.2.</p>
+    <p><img src="media/flower.gif" alt="Flower Depth Refocusing GIF"></p>
+    
+    <h2>Aperture Adjustment</h2>
+    <p>
+        The second part of the project involved simulating aperture adjustment. 
+        Aperture controls the area of focus, allowing us to mimic the effect of increasing or decreasing aperture size. 
+        By selectively including images within a specific distance from the center, I could adjust the level of blur in the final output.
+    </p>
+    <p>
+        The implementation involved excluding images where the absolute difference between their (x, y) coordinates and the center (8, 8) exceeded the aperture threshold. 
+        The remaining images were combined into a normalized average. Below, you can see the results for varying aperture sizes.
+    </p>
+    <h3>Chessboard Aperture Adjustment (GIF)</h3>
+    <p>Simulated aperture size ranging from 0 to 10 in steps of 1, with <code>c = 1.5</code>.</p>
+    <p><img src="media/aperture_chessboard.gif" alt="Chessboard Aperture Adjustment GIF"></p>
+    
+    <h3>Flower Aperture Adjustment (GIF)</h3>
+    <p>Simulated aperture size ranging from 0 to 5 in steps of 1, with <code>c = 1.5</code>.</p>
+    <p><img src="media/flower_aperture.gif" alt="Flower Aperture Adjustment GIF"></p>
+    <h3>Bells and Whistles: Using Real Data</h3>
+    <p>Depth focus simulated for <code>c</code> values ranging from 0 to 3 in steps of 0.5. Since it is hard to do image offsets perfectly with a human hand, my output is blurry and does not look very clear.</p>
+    <p><img src="media/9dqnbm.gif" alt="Flower Aperture Adjustment GIF"></p>
+
+    <h1>CS180 Final Project: High Dynamic Range (HDR)</h1>
+
+<h2>Overview</h2>
+<p>
+    For the second part of my CS180 final project, I explored High Dynamic Range (HDR) imaging. This technique enables capturing and processing a wider range of light and dark details than standard photography. It was fascinating to see how mathematical models and algorithms can help bring out vibrant details in scenes that would otherwise appear too bright or too dark.
+</p>
+
+<h2>Base Images</h2>
+<p> The HDR process begins with capturing a series of base images of the same scene, each taken at different exposure levels. These images collectively provide a complete range of light information—some focusing on brighter regions and others emphasizing darker regions. Combining these images enables us to reconstruct the full dynamic range of the scene. Below is an example sequence of base images used in this project: </p>
+<p>
+    <img src="media/1_4.jpg" alt="Base Images at Different Exposures">
+    <img src="media/1_25.jpg" alt="Base Images at Different Exposures">
+    <img src="media/3_1.jpg" alt="Base Images at Different Exposures">
+    <img src="media/17_1.jpg" alt="Base Images at Different Exposures">
+
+
+
+</p>
+<p>Exposure times: 17s, 3s, 1/25s, 1/4s.</p>
+
+<h2>Radiance Map Construction</h2>
+<p>
+    The first step in creating an HDR image was to estimate the radiance map of the scene. Using the least-squares algorithm described by Debevec, I computed the camera response function <code>g</code> and the unknown log radiance values <code>ln(E)</code> for each pixel. This approach combines the pixel values across all images, weighted by their exposure times and a triangle weighting function to avoid saturation effects.
+</p>
+<p>
+    Below is an example of the computed response function for each color channel:
+</p>
+<p>
+    <img src="media/graphs.png" alt="Computed Response Function">
+</p>
+
+<h3>Log Radiance Map</h3>
+<p>
+    The next step was constructing the radiance map, which represents the true intensity of light at each pixel in the scene. Using the Debevec and Malik algorithm, I computed the camera response function and the log radiance values . The algorithm combines pixel values from all images, weighting them based on their proximity to the midpoint of the intensity range (to avoid saturation). This weighted least-squares approach ensures the radiance map is robust and accurately represents the light intensities of the scene. </p>
+<p>
+    <img src="media/chapel_radiance_map.png" alt="Log Radiance Map">
+    <img src="media/radiance_map.png" alt="Log Radiance Map">
+
+</p>
+<p>
+    <img src="media/bonsai_radiance_map.png" alt="Log Radiance Map">
+</p>
+
+<h2>Tone Mapping</h2>
+<p>
+    After constructing the radiance map, the next challenge was tone mapping—compressing the wide dynamic range of the HDR image into a range that can be displayed on standard monitors. Tone mapping preserves as much detail as possible from both dark and bright regions, ensuring the final image remains visually balanced and realistic. I implemented and compared several tone mapping algorithms: </p> <ul> <li><strong>Global Simple:</strong> A straightforward approach that applies a pixel-wise logarithmic transformation to compress the dynamic range, followed by global scaling to fit the values into a displayable range.</li> <li><strong>Durand:</strong> A more advanced technique that separates the image into two components: a base layer (capturing large-scale intensity variations) and detail layer(preserving fine textures). These layers are processed independently and recombined to enhance the overall balance and clarity of the image.</p>
+
+
+<h3>Durand Tone Mapping</h3>
+<p>
+    The Durand operator balances brightness and preserving detail in both dark and bright regions. Below are the base and detail layers extracted using the bilateral filter:
+</p>
+<p>
+    <img src="media/layers.png" alt="Base Layer">
+</p>
+<p>
+    Here are the results for different tone mapping operators:
+</p>
+<p>
+    <img src="media/arch.png" alt="Tone Mapping Results">
+
+    <img src="media/mug.png" alt="Tone Mapping Results">
+</p>
+
+<h2>All HDR Images</h2>
+<p>
+    Finally, here are the HDR results for various scenes using both the Global Simple and Durand tone mapping methods:
+</p>
+<p>
+    
+        <img src="media/arch.png" alt="Tone Mapping Results">
+        <img src="media/bonsai.png" alt="Tone Mapping Results">
+        <img src="media/chapel.png" alt="Tone Mapping Results">
+        <img src="media/garage.png" alt="Tone Mapping Results">
+        <img src="media/garden.png" alt="Tone Mapping Results">
+        <img src="media/house.png" alt="Tone Mapping Results">
+        <img src="media/mug.png" alt="Tone Mapping Results">
+        <img src="media/window.png" alt="Tone Mapping Results">
+
+<p>
+    The Durand operator and Global simple operator produced similar results. In both cases I could not figure out how to preserve the color and unfortunately have grayscale images for both outputs.
+</p>
+
+
+</body>
+</html>
