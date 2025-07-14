@@ -1,0 +1,30 @@
+body {
+  font-family: sans-serif;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+header, footer {
+  background: #333;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  background: white;
+}
+a {
+  text-decoration: none;
+  color: #0077cc;
+}
+a:hover {
+  text-decoration: underline;
+}
+.post-preview {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+}
