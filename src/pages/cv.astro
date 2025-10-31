@@ -4,7 +4,7 @@ import TimeLineElement from "../components/cv/TimeLine.astro";
 ---
 
 <BaseLayout title="Resume" sideBarActiveItemID="cv">
-  <div class="mb-5">
+  <!-- <div class="mb-5">
     <div class="text-3xl w-full font-bold">Profile</div>
   </div>
 
@@ -13,7 +13,7 @@ import TimeLineElement from "../components/cv/TimeLine.astro";
     aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
     aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
     cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-  </div>
+  </div> -->
 
   <div class="mb-5">
     <div class="text-3xl w-full font-bold">Education</div>
@@ -21,72 +21,76 @@ import TimeLineElement from "../components/cv/TimeLine.astro";
 
   <div class="time-line-container grid gap-4 mb-10">
     <TimeLineElement
-      title="Title Name"
-      subtitle="[start year] to [end year] at [Study Center Name], [City], [Country]"
+      title="B.S. in Electrical Engineering & Computer Sciences (EECS)"
+      subtitle="2023 – 2027 · University of California, Berkeley · Berkeley, CA"
     />
     <TimeLineElement
-      title="Title Name"
-      subtitle="[start year] to [end year] at [Study Center Name], [City], [Country]"
+      title="High School (Dropped Out)"
+      subtitle="2020 to 2023 at Alhambra High School  · Alhambra, CA"
     />
   </div>
 
   <div class="mb-5">
     <div class="text-3xl w-full font-bold">Experience</div>
   </div>
-
   <div class="time-line-container mb-10">
+
     <TimeLineElement
-      title="Job Title at Project or Company Name"
-      subtitle="From [Start Date] to [End Date] at [Company], [City], [Country]"
+      title="Undergraduate Researcher · Berkeley SLICE Lab"
+      subtitle="Nov 2025 – Present · Berkeley, CA, USA"
     >
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+      <!-- Improving <b>FireFlower</b>, a Transformer model predicting instruction-level latency on RISC-V cores, by analyzing stall misattributions and incorporating PC/context embeddings for better I$-miss prediction.  
+      Exploring state-aware extensions and hardware trace tagging to bridge learned latency attribution with pipeline-level microarchitectural behavior. -->
     </TimeLineElement>
+
     <TimeLineElement
-      title="Job Title at Project or Company Name"
-      subtitle="From [Start Date] to [End Date] at [Company], [City], [Country]"
+      title="Machine Learning Engineer · Mercor Intelligence"
+      subtitle="Oct 2025 – Present · Remote"
     >
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+      <!-- Expanded <b>OpenAI’s MLE-Bench</b> by converting machine learning competition challenges and academic papers into reproducible benchmark tasks for LLM-based problem solving.  
+      Analyzed model outputs and generated evaluation reports to inform benchmarking improvements. -->
     </TimeLineElement>
+
     <TimeLineElement
-      title="Job Title at Project or Company Name"
-      subtitle="From [Start Date] to [End Date] at [Company], [City], [Country]"
+      title="Software Engineer Intern · Amazon Web Services (AWS)"
+      subtitle="May 2025 – Aug 2025 · New York, NY, USA"
     >
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+      <!-- Built a Java Application Performance Monitoring (APM) platform using <b>AWS ECS, Lambda, and API Gateway</b> integrated with <b>Glowroot</b> to trace response times, throughput, and JVM heap usage.  
+      Implemented thread-level profiling and flame graph visualization, reducing diagnostic time by <b>8×</b>. -->
     </TimeLineElement>
-  </div>
 
-  <div class="mb-5">
-    <div class="text-3xl w-full font-bold">Certifications</div>
-  </div>
+    <TimeLineElement
+      title="Software Engineer Intern · Amazon Web Services (AWS)"
+      subtitle="May 2024 – Aug 2024 · New York, NY, USA"
+    >
+      <!-- Architected an automated <b>MLOps pipeline</b> for preprocessing, training, tuning, and deployment using <b>AWS SageMaker</b>, supporting computation of <b>15 M+</b> customer bills.  
+      Deployed <b>17 anomaly detection models</b> achieving <b>95% accuracy</b> via Bayesian optimization. -->
+    </TimeLineElement>
 
-  <ul class="list-disc mx-6 mb-10 grid gap-2">
-    <li>
-      <a href="#" target="_blank"> Certification Name (with link)</a>
-    </li>
-    <li>
-      <a href="#" target="_blank"> Certification Name (with link)</a>
-    </li>
-  </ul>
+    <TimeLineElement
+      title="Undergraduate Researcher · Berkeley AI Research (BAIR) Lab"
+      subtitle="Jan 2024 – Jun 2024 · Berkeley, CA, USA"
+    >
+      <!-- Integrated tooling to improve usability of <b>NeRFStudio</b> and <b>Viser</b> for generating Gaussian Splats and NeRFs.  
+      Optimized NeRFStudio’s data pipeline, cutting render time by <b>60%</b>. -->
+    </TimeLineElement>
 
-  <div class="mb-5">
-    <div class="text-3xl w-full font-bold">Skills</div>
-  </div>
+    <TimeLineElement
+      title="Machine Learning Engineer · Launchpad"
+      subtitle="Aug 2023 – Present · Berkeley, CA, USA"
+    >
+      <!-- Designed a handheld camera powered by <b>Raspberry Pi</b> and generative models (<b>Stable Diffusion</b>, <b>NeRFs</b>) to enhance images artistically.  
+      Applied Neural Radiance Fields for efficient 3D modeling from 2D inputs using InstantNGP and Unity. -->
+    </TimeLineElement>
+    <!-- <TimeLineElement
+      title="Electrical Engineering Intern · Caelux"
+      subtitle="May 2022 – Sep 2022 · Pasadena, CA, USA"
+    >
+      Designed a handheld camera powered by <b>Raspberry Pi</b> and generative models (<b>Stable Diffusion</b>, <b>NeRFs</b>) to enhance images artistically.  
+      Applied Neural Radiance Fields for efficient 3D modeling from 2D inputs using InstantNGP and Unity.
+    </TimeLineElement> -->
 
-  <ul class="list-disc md:columns-5 columns-2 mx-6">
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-    <li>Skill Name</li>
-  </ul>
+</div>
+
+
 </BaseLayout>

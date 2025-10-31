@@ -11,56 +11,74 @@ const last_posts = posts.slice(0, 3);
 
 <BaseLayout sideBarActiveItemID="home">
   <div class="pb-12 mt-5">
-    <div class="text-xl py-1">Hey there 👋</div>
-    <div class="text-5xl font-bold">I'm Manuel Ernesto</div>
-    <div class="text-3xl py-3 font-bold">Software Engineer and Entrepreneur</div>
-    <div class="py-2">
-      <text class="text-lg">
-        This is <b>Astrofy</b> a free and open-source template for your Personal Portfolio Website built with Astro and TailwindCSS.
-        Create in minutes a website with Blog, CV, Project Section, Store and RSS Feed. I hope you find
-        it useful!
-      </text>
+    <div class="text-xl py-1">Hello there! 😆</div>
+    <div class="text-5xl font-bold">I'm Annie Zhang</div>
+    <div class="text-3xl py-3 font-bold">Engineer & Researcher</div>
+        <div class="py-2 leading-relaxed text-lg space-y-4">
+      <p>
+        I'm an engineer & researcher who is excited about 
+         computer architecture and using 
+         machine learning to create technology that feels like magic. :)
+      </p>
+
+      <p>
+        My research interests lie in using AI for hardware and 
+        hardware accelerators. Currently, I’m working on utilizing 
+        transformer models to predict the latency of RISC-V
+        instructions at the 
+        <a href="https://slice.berkeley.edu/" class="text-blue-500 underline" target="_blank">
+          Berkeley SpeciaLIzed Computing Ecosystems (SLICE) Lab
+        </a>, advised by 
+        <a href="https://people.eecs.berkeley.edu/~sagark/" class="text-blue-500 underline" target="_blank">
+          Prof. Sagar Karandikar
+        </a>.
+      </p>
+
+      <p>
+        In my free time, you’ll often find me jogging around hills, 
+        watching shows, or exploring SF with friends. :)
+      </p>
     </div>
-    <div class="mt-8">
-      <a class="btn" href="https://twitter.com/manuelernestog" target="_blank"> Let's connect!</a>
-      <a href="https://github.com/manuelernestog/astrofy" target="_blank" class="btn btn-outline ml-5">
-        Get This template
+    </div>
+    <div class="mt-16">
+      <a class="btn" href="https://www.linkedin.com/in/anniezhang2288/" target="_blank">
+        Let's connect!
       </a>
     </div>
   </div>
 
-  <div>
-    <div class="text-3xl w-full font-bold mb-2">My last projects {"</>"}</div>
+  <div class="mt-20">
+    <div class="text-3xl w-full font-bold mb-4">My last projects {"</>"}</div>
   </div>
 
+
   <HorizontalCard
-    title="Demo Project 1"
+    title="Plantlytics"
     img="/post_img.webp"
-    desc="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-    url="#"
-    badge="NEW"
+    desc="AI-Driven Plant Disease Detection"
+    url="https://github.com/anniezhang2288/Plantlytics"
   />
-  <div class="divider my-0"></div>
+  <!-- <!-- <div class="divider my-0"></div>
   <HorizontalCard
     title="Demo Project 2"
     img="/post_img.webp"
     desc="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     url="#"
-  />
-  <div class="divider my-0"></div>
+  /> -->
+  <!-- <div class="divider my-0"></div> -->
   <HorizontalCard
-    title="Demo Project 3"
+    title="MidiKeyboard Microcontroller"
     img="/post_img.webp"
-    desc="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    desc="Work in progress :D"
     url="#"
-    badge="FOSS"
-  />
+    badge="NEW"
+  /> 
 
-  <div>
+  <!-- <div>
     <div class="text-3xl w-full font-bold mb-5 mt-10">Latest from blog</div>
-  </div>
+  </div> -->
 
-  {
+  <!-- {
     last_posts.map((post) => (
       <>
         <HorizontalCard
@@ -74,5 +92,5 @@ const last_posts = posts.slice(0, 3);
         <div class="divider my-0" />
       </>
     ))
-  }
+  } -->
 </BaseLayout>
